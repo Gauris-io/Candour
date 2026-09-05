@@ -1,0 +1,5 @@
+fastapi
+uvicorn[standard]
+# Dependencies for agent to be added later:
+# google-genai
+# mcp
