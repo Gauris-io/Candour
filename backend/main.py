@@ -1,4 +1,3 @@
-import os
 import asyncio
 from uuid import uuid4
 from dotenv import load_dotenv
@@ -84,13 +83,17 @@ async def query_agent(request: AskRequest):
 
     # runner.run is a sync generator — offload to a thread so uvicorn's
     # event loop stays free to handle other requests while the agent works.
-    events: list = await asyncio.to_thread(
-        lambda: list(runner.run(
-            user_id=effective_user_id,
-            session_id=effective_session_id,
-            new_message=content,
-        ))
-    )
+    try:
+        events: list = await asyncio.to_thread(
+            lambda: list(runner.run(
+                user_id=effective_user_id,
+                session_id=effective_session_id,
+                new_message=content,
+            ))
+        )
+    except Exception as e:
+        print(f"Agent execution failed: {e}")
+        return {"response": None, "error": "The analysis agent could not complete this request."}
 
     response_text = ""
     for event in events:

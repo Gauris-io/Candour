@@ -67,7 +67,18 @@ def get_financial_score(nconst: str | None, role: str) -> dict:
             WHERE pf.budget > 0 AND pf.revenue > 0
         """
         fin_rows = run_query(sql_fin, parameters={"nconst": nconst})
-        metrics_avg_roi = None
+
+        # This branch is currently unreachable because check.py always passes
+        # SUBJECT_LOOKUP_ROLE ('investor' -> 'producer'). If it is ever called
+        # with an actor/writer role, attempt to read ROI without a category filter
+        # so the value isn't silently nulled.
+        sql_roi = """
+            SELECT avg_roi
+            FROM metrics.person_track_record
+            WHERE nconst = {nconst:String}
+        """
+        roi_rows = run_query(sql_roi, parameters={"nconst": nconst})
+        metrics_avg_roi = roi_rows[0]["avg_roi"] if roi_rows else None
 
     if fin_rows and fin_rows[0]["projects_with_financial_data"]:
         row = fin_rows[0]

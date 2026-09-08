@@ -32,20 +32,20 @@ def get_network_flags(nconst: str | None, claimed_connections: list[str]) -> dic
     edge_rows = run_query(sql_edges, parameters={"nconst": nconst})
     actual_nconsts = {row["connected_nconst"] for row in edge_rows}
 
-    # 2. Resolve claimed names → nconsts via identity.person_bridge (exact match).
+    # 2. Resolve claimed names → nconsts via identity.person_bridge (case-insensitive).
     sql_claims = """
         SELECT name, nconst
         FROM identity.person_bridge
-        WHERE has({names:Array(String)}, name)
+        WHERE has(arrayMap(x -> lower(trim(x)), {names:Array(String)}), lower(name))
     """
     claim_rows = run_query(sql_claims, parameters={"names": claimed_connections})
-    name_to_nconst = {row["name"]: row["nconst"] for row in claim_rows}
+    name_to_nconst = {row["name"].lower(): row["nconst"] for row in claim_rows}
 
     # 3. Classify each claim.
     verified = []
     unverified = []
     for claim in claimed_connections:
-        claim_nconst = name_to_nconst.get(claim)
+        claim_nconst = name_to_nconst.get(claim.strip().lower())
         if claim_nconst and claim_nconst in actual_nconsts:
             verified.append(claim)
         else:

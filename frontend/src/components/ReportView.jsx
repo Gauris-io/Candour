@@ -21,8 +21,8 @@ function getInitials(name = '') {
 // ── Profile header ───────────────────────────────────────────────────────────
 
 function ProfileHeader({ result }) {
-  const { name, role, credits, collaborators, personFound, matchType, warnings } = result
-  const initials      = getInitials(name)
+  const { name, inputName, role, credits, collaborators, personFound, matchType, candidates, warnings } = result
+  const initials      = getInitials(personFound === false ? '?' : name)
   const roleLabel     = role.replace('_', ' ')
   const totalCollabs  = collaborators.verified.length + collaborators.unverified.length
   const unverifiedCnt = collaborators.unverified.length
@@ -42,7 +42,7 @@ function ProfileHeader({ result }) {
       {/* Name + pills */}
       <div className="flex-1 min-w-0">
         <h1 className="font-heading text-4xl text-ink leading-tight tracking-wide">
-          {name}
+          {personFound === false ? 'No verified match' : name}
         </h1>
 
         {/* Interpretation / not-found sub-line */}
@@ -54,6 +54,11 @@ function ProfileHeader({ result }) {
         {personFound === false && warnings.length > 0 && (
           <p className="font-mono text-xs text-pink mt-1">
             {warnings[0]}
+          </p>
+        )}
+        {personFound === false && candidates.length > 0 && (
+          <p className="font-mono text-xs text-pink mt-1">
+            Multiple people match: {candidates.map(c => c.name).join(', ')} — try a more specific name.
           </p>
         )}
 

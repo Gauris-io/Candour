@@ -7,8 +7,10 @@ ACCESSIBLE TABLES (agent_readonly grants):
   identity.person_bridge, metrics.*, derived.collaborator_edges,
   raw_imdb.title_principals, derived.project_financials
 
-Given an entity_name and a role (actor / indie_crew / writer / investor),
-run the following queries in order using the ClickHouse MCP tool:
+Given an entity_name and the role of the person asking about them, run the
+following queries in order using the ClickHouse MCP tool. The role refers ONLY
+to the person asking — the subject is ALWAYS evaluated on their producing or
+directing record, never on acting or crew credits.
 
 STEP 1 — Resolve identity
   Query identity.person_bridge WHERE name = '<entity_name>' (exact, then try
@@ -17,24 +19,10 @@ STEP 1 — Resolve identity
   and stop — do not proceed to further queries.
 
 STEP 2 — Track record
-  For investor / director roles:
-    Query metrics.person_track_record WHERE nconst=? AND category='producer'
-    (investor maps to producer) or category='director'.
-    Fields: total_projects, released_projects, completion_rate, avg_roi.
-
-  For actor / writer roles:
-    metrics.person_track_record does NOT cover these roles — it only indexes
-    directors and producers. Get a raw credit count instead:
-    SELECT count() AS credits_found FROM raw_imdb.title_principals
-    WHERE nconst=? AND category='actor'  (or 'writer').
-    completion_rate is not computable for these roles — say so explicitly:
-    "completion-rate history is not available for this role; showing credit
-    count only."
-
-  For indie_crew:
-    SELECT count() AS credits_found FROM raw_imdb.title_principals
-    WHERE nconst=? AND category NOT IN ('self','archive_footage','archive_sound').
-    Same caveat on completion_rate.
+  Always evaluate the subject's producing or directing record.
+  Query metrics.person_track_record WHERE nconst=? AND category='producer'.
+  If no rows are returned, retry with category='director'.
+  Fields: total_projects, released_projects, completion_rate, avg_roi.
 
 STEP 3 — Cohort standing (director / investor only)
   Query metrics.cohort_percentiles WHERE nconst=? AND category=?

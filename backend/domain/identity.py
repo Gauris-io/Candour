@@ -61,7 +61,7 @@ def _try_resolve(rows: list[dict], match_type: str) -> ResolutionResult:
 
 
 def resolve_identity(name: str) -> ResolutionResult:
-    """Three-tier resolution: exact → case-insensitive → partial.
+    """Four-tier resolution: exact → case-insensitive → partial.
 
     Only auto-resolves when there is exactly one match, or one uniquely
     verified=1 match. Never silently picks an arbitrary person on collision.

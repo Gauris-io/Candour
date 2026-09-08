@@ -72,33 +72,18 @@ export function useCandourCheck() {
       return
     }
 
-    // Live mode: fire both in parallel, settle independently
-    const [checkOutcome, agentOutcome] = await Promise.allSettled([
-      checkCredibility(name.trim(), role, claimedCredits, claimedCollaborators),
-      // The agent receives the raw name as a natural-language subject
-      // (the role-framing is added server-side when role is supplied)
-      askAgent(name.trim(), role),
-    ])
+    // Live mode: fire both in parallel, update state independently as soon as each resolves
+    checkCredibility(name.trim(), role, claimedCredits, claimedCollaborators)
+      .then(raw => setResult(validateResponse(raw)))
+      .catch(err => setError(err.message ?? 'Unknown error from /check'))
+      .finally(() => setLoading(false))
 
-    // /check result
-    if (checkOutcome.status === 'fulfilled') {
-      try {
-        setResult(validateResponse(checkOutcome.value))
-      } catch (err) {
-        setError(err.message ?? 'Response validation error')
-      }
-    } else {
-      setError(checkOutcome.reason?.message ?? 'Unknown error from /check')
-    }
-    setLoading(false)
-
-    // /query (agent) result
-    if (agentOutcome.status === 'fulfilled') {
-      setAgentResponse(agentOutcome.value)
-    } else {
-      setAgentError(agentOutcome.reason?.message ?? 'Unknown error from /query')
-    }
-    setAgentLoading(false)
+    // The agent receives the raw name as a natural-language subject
+    // (the role-framing is added server-side when role is supplied)
+    askAgent(name.trim(), role)
+      .then(text => setAgentResponse(text))
+      .catch(err => setAgentError(err.message ?? 'Unknown error from /query'))
+      .finally(() => setAgentLoading(false))
 
   }, [])
 

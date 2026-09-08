@@ -13,7 +13,6 @@ import { useCandourCheck } from '../hooks/useCandourCheck'
 import SearchForm from '../components/SearchForm'
 import ReportView from '../components/ReportView'
 // react-markdown installed successfully; used to render the agent's markdown prose.
-// If this import ever fails, swap the ReactMarkdown JSX below for the pre-wrap fallback.
 import ReactMarkdown from 'react-markdown'
 
 // ── Agent brief panel ──────────────────────────────────────────────────────
@@ -51,26 +50,17 @@ function AgentBrief({ agentResponse, agentLoading, agentError }) {
           )}
 
           {agentError && (
-            <p className="font-app text-sm text-pink">⚠ {agentError}</p>
+            <p className="font-app text-sm text-pink">⚠ The analysis agent couldn't complete this request — the evidence below is still accurate.</p>
           )}
 
           {agentResponse && (
-            ReactMarkdown ? (
-              <div className="prose prose-sm max-w-none font-app text-ink leading-relaxed
-                              [&_h3]:font-heading [&_h3]:text-base [&_h3]:text-ink [&_h3]:mt-5 [&_h3]:mb-1
-                              [&_strong]:font-bold [&_strong]:text-ink
-                              [&_p]:mb-3 [&_ul]:mb-3 [&_li]:mb-1
-                              [&_code]:font-mono [&_code]:text-xs [&_code]:bg-ink/8 [&_code]:px-1 [&_code]:rounded">
-                <ReactMarkdown>{agentResponse}</ReactMarkdown>
-              </div>
-            ) : (
-              <div
-                className="font-app text-sm text-ink leading-relaxed"
-                style={{ whiteSpace: 'pre-wrap' }}
-              >
-                {agentResponse}
-              </div>
-            )
+            <div className="max-w-none font-app text-ink leading-relaxed
+                            [&_h3]:font-heading [&_h3]:text-base [&_h3]:text-ink [&_h3]:mt-5 [&_h3]:mb-1
+                            [&_strong]:font-bold [&_strong]:text-ink
+                            [&_p]:mb-3 [&_ul]:mb-3 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:mb-1
+                            [&_code]:font-mono [&_code]:text-xs [&_code]:bg-ink/8 [&_code]:px-1 [&_code]:rounded">
+              <ReactMarkdown>{agentResponse}</ReactMarkdown>
+            </div>
           )}
         </div>
       </div>
@@ -110,7 +100,7 @@ export default function Home() {
       {/* ── Search form ──────────────────────────────────────────────────── */}
       <SearchForm
         onCheck={handleCheck}
-        loading={loading || agentLoading}
+        loading={loading}
         error={null}
       />
 

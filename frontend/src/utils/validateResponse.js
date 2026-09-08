@@ -18,6 +18,7 @@
  * @property {string}   role
  * @property {boolean|null} personFound
  * @property {string|null}  matchType
+ * @property {{ name: string, nconst: string }[]} candidates
  * @property {string[]}     warnings
  * @property {{ found: number|null, claimed: number|null }} credits
  * @property {{ verified: string[], unverified: string[] }} collaborators
@@ -37,11 +38,13 @@ export function validateResponse(raw) {
 
   return {
     name:  typeof raw.name  === 'string' ? raw.name  : '—',
+    inputName: raw.input_name ?? null,
     role:  typeof raw.role  === 'string' ? raw.role  : '—',
 
     // Identity resolution metadata — used by ProfileHeader to show interpretation cues
     personFound: raw.person_found ?? null,
     matchType:   raw.name_resolution?.match_type ?? null,
+    candidates:  raw.name_resolution?.candidates ?? [],
     warnings:    Array.isArray(raw.warnings) ? raw.warnings : [],
 
     credits: {

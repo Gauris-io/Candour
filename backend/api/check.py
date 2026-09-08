@@ -107,9 +107,7 @@ async def check_credibility(request: CheckRequest):
         if credits_claimed > 0:
             flags.append("no verifiable credits found — claimed count cannot be confirmed")
         else:
-            flags.append(
-                "no credits found in verified records — flagged as insufficient history"
-            )
+            flags.append("no producing or directing credits found for this person in verified records")
     elif credits_found is not None and credits_claimed > 0 and credits_claimed > credits_found * 1.5:
         flags.append(
             f"credit count discrepancy: {credits_claimed} claimed, "
@@ -143,7 +141,7 @@ async def check_credibility(request: CheckRequest):
     # 5. Assemble response.
     # ------------------------------------------------------------------
     return {
-        "name": matched_name,
+        "name": matched_name if person_found else None,
         "input_name": name,
         "role": role,
         "person_found": person_found,
