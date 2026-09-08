@@ -39,9 +39,10 @@ async def check_credibility(request: CheckRequest):
     name_resolution = {
         "input": name,
         "matched_as": matched_name,
+        "nconst": resolution.nconst,
         "match_type": resolution.match_type,
         "status": resolution.status,
-        "candidates": resolution.candidates if resolution.status == "ambiguous" else [],
+        "candidates": [c.model_dump() for c in resolution.candidates] if resolution.status == "ambiguous" else [],
     }
 
     if resolution.status == "ambiguous":

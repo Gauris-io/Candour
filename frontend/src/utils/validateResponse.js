@@ -43,6 +43,7 @@ export function validateResponse(raw) {
 
     // Identity resolution metadata — used by ProfileHeader to show interpretation cues
     personFound: raw.person_found ?? null,
+    nconst:      raw.name_resolution?.nconst ?? null,
     matchType:   raw.name_resolution?.match_type ?? null,
     candidates:  raw.name_resolution?.candidates ?? [],
     warnings:    Array.isArray(raw.warnings) ? raw.warnings : [],

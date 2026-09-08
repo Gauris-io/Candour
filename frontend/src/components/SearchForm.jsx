@@ -10,7 +10,7 @@
  * All text: font-app.
  */
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 const ROLES = [
   { value: 'actor', label: 'Actor' },
@@ -32,6 +32,18 @@ export default function SearchForm({ onCheck, loading, error }) {
   const [nameError, setNameError] = useState('')
   const [claimedCredits, setClaimedCredits] = useState('')
   const [claimedCollaborators, setClaimedCollaborators] = useState('')
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('candour.profile')
+      if (stored) {
+        const parsed = JSON.parse(stored)
+        if (parsed.role) setRole(parsed.role)
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, [])
 
   function handleNameChange(e) {
     setName(e.target.value)
@@ -57,7 +69,7 @@ export default function SearchForm({ onCheck, loading, error }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="px-8 pb-10 pt-6 flex flex-col gap-8 w-full max-w-4xl mx-auto items-center"
+      className="px-8 pb-10 pt-6 flex flex-col gap-8 w-full max-w-4xl mx-auto items-center print:hidden"
       aria-label="Credibility check form"
     >
       {/* Role selector pills */}

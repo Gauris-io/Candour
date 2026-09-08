@@ -6,7 +6,7 @@
 
 export default function Footer() {
   return (
-    <footer className="py-6 text-center">
+    <footer className="py-6 text-center print:hidden">
       <p className="font-app text-sm text-ink-soft tracking-wide">
         Evidence, not verdicts.
       </p>

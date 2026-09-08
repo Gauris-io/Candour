@@ -14,10 +14,34 @@ import SearchForm from '../components/SearchForm'
 import ReportView from '../components/ReportView'
 // react-markdown installed successfully; used to render the agent's markdown prose.
 import ReactMarkdown from 'react-markdown'
+import { useState, useEffect } from 'react'
 
 // ── Agent brief panel ──────────────────────────────────────────────────────
 
 function AgentBrief({ agentResponse, agentLoading, agentError }) {
+  const [loadingText, setLoadingText] = useState('Resolving identity…')
+
+  useEffect(() => {
+    if (!agentLoading) return
+
+    const messages = [
+      'Resolving identity…',
+      'Querying track record…',
+      'Checking cohort standing…',
+      'Verifying collaborators…',
+      'Writing the brief…'
+    ]
+
+    let index = 0
+    setLoadingText(messages[0])
+    const interval = setInterval(() => {
+      index = Math.min(index + 1, messages.length - 1)
+      setLoadingText(messages[index])
+    }, 5000)
+
+    return () => clearInterval(interval)
+  }, [agentLoading])
+
   if (!agentLoading && !agentResponse && !agentError) return null
 
   return (
@@ -45,7 +69,7 @@ function AgentBrief({ agentResponse, agentLoading, agentError }) {
         <div className="px-8 py-6">
           {agentLoading && !agentResponse && (
             <p className="font-app text-sm text-ink-soft animate-pulse-dot">
-              Agent is querying the database…
+              {loadingText}
             </p>
           )}
 
@@ -137,9 +161,14 @@ export default function Home() {
           {/* 3. Tabbed evidence ledger */}
           {result && !loading && (
             <div className="w-full max-w-4xl px-8 animate-fade-in">
-              <h2 className="font-heading text-sm text-ink-soft uppercase tracking-widest mb-3 pl-1">
-                Evidence layer
-              </h2>
+              <div className="flex justify-between items-center mb-3 pl-1">
+                <h2 className="font-heading text-sm text-ink-soft uppercase tracking-widest">
+                  Evidence layer
+                </h2>
+                <button onClick={() => window.print()} className="font-app text-xs font-bold text-ink-soft hover:text-ink transition-colors print:hidden">
+                  Print / Save as PDF
+                </button>
+              </div>
               <ReportView
                 result={result}
                 activeTab={activeTab}

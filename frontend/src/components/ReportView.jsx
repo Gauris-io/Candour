@@ -41,12 +41,15 @@ function ProfileHeader({ result }) {
 
       {/* Name + pills */}
       <div className="flex-1 min-w-0">
-        <h1 className="font-heading text-4xl text-ink leading-tight tracking-wide">
+        <h1 className="font-heading text-4xl text-ink leading-tight tracking-wide flex items-baseline gap-3">
           {personFound === false ? 'No verified match' : name}
+          {result.nconst && (
+            <span className="font-mono text-xs text-ink-soft tracking-normal uppercase">{result.nconst}</span>
+          )}
         </h1>
 
         {/* Interpretation / not-found sub-line */}
-        {matchType === 'extracted_from_text' && (
+        {personFound && matchType === 'extracted_from_text' && (
           <p className="font-mono text-xs text-ink-soft mt-1">
             Interpreted your query as: {name}
           </p>
@@ -109,19 +112,24 @@ function CreditsPanel({ result }) {
     <div className="space-y-4">
       <div className="space-y-0">
         <LedgerRow
-          label="producing_credits_found"
+          label="Producing credits found"
           value={nullLabel(credits.found)}
           flagged={credits.found === 0}
           footnote={
             credits.found === 0
               ? 'No credits found — recorded as insufficient history, not a contradiction.'
-              : undefined
+              : "Projects where they're credited as producer or director"
           }
         />
         <LedgerRow
-          label="credits_claimed_by_subject"
+          label="Credits they claimed"
           value={nullLabel(credits.claimed)}
           flagged={false}
+          footnote={
+            credits.claimed > 0
+              ? 'What the subject says they have'
+              : undefined
+          }
         />
       </div>
       {flags.length > 0 && <EvidenceSummary flags={flags} />}
@@ -138,9 +146,9 @@ function CollaboratorsPanel({ result }) {
     <div className="space-y-4">
       {/* Summary counts */}
       <div className="space-y-0">
-        <LedgerRow label="total_claimed_connections"  value={String(total)}                                  flagged={false} />
-        <LedgerRow label="verified_connections"       value={String(collaborators.verified.length)}          flagged={false} />
-        <LedgerRow label="unverified_connections"     value={String(collaborators.unverified.length)}        flagged={collaborators.unverified.length > 0} />
+        <LedgerRow label="People they named"  value={String(total)}                                  flagged={false} />
+        <LedgerRow label="Confirmed working relationships"       value={String(collaborators.verified.length)}          flagged={false} />
+        <LedgerRow label="Couldn't confirm"     value={String(collaborators.unverified.length)}        flagged={collaborators.unverified.length > 0} footnote={collaborators.unverified.length > 0 ? "Absence of a record isn't proof a claim is false" : undefined} />
       </div>
 
       {/* Verified list */}
@@ -192,33 +200,43 @@ function FinancialsPanel({ result }) {
     <div className="space-y-4">
       <div className="space-y-0">
         <LedgerRow
-          label="avg_box_office_multiple"
+          label="Box office vs budget"
           value={nullLabel(financials.avgBoxOfficeMultiple)}
           flagged={financials.avgBoxOfficeMultiple === null}
           footnote={
             financials.avgBoxOfficeMultiple === null
               ? 'Data unavailable for this person’s projects — outside dataset scope or no TMDb/Wikidata match.'
+              : `Earned about $${financials.avgBoxOfficeMultiple} for every $1 spent across their tracked films`
+          }
+        />
+        <LedgerRow
+          label="Average return"
+          value={nullLabel(financials.avgRoi)}
+          flagged={financials.avgRoi === null}
+          footnote={
+            financials.avgRoi !== null
+              ? 'Profit relative to budget across their tracked films'
               : undefined
           }
         />
         <LedgerRow
-          label="avg_roi"
-          value={nullLabel(financials.avgRoi)}
-          flagged={financials.avgRoi === null}
-        />
-        <LedgerRow
-          label="projects_with_financial_data"
+          label="Films with financial records"
           value={nullLabel(financials.projectsWithFinancialData)}
           flagged={false}
+          footnote={
+            financials.projectsWithFinancialData !== null
+              ? `${financials.projectsWithFinancialData} of their tracked projects have budget and revenue on file`
+              : undefined
+          }
         />
         <LedgerRow
-          label="financial_viability_score"
+          label="Overall viability"
           value={nullLabel(financials.score)}
           flagged={financials.score === null}
           footnote={
             financials.score === null
               ? 'Score requires cohort/genre data — unavailable outside a narrow high-vote-count slice of titles.'
-              : undefined
+              : `${financials.score} out of 1 — combines financial returns (60%) and delivery record (40%)`
           }
         />
       </div>
@@ -248,9 +266,15 @@ export default function ReportView({ result, activeTab, setActiveTab }) {
         aria-labelledby={`tab-${activeTab.toLowerCase()}`}
       >
         <div className="px-8 py-6">
-          {activeTab === 'Credits'       && <CreditsPanel       result={result} />}
-          {activeTab === 'Collaborators' && <CollaboratorsPanel result={result} />}
-          {activeTab === 'Financials'    && <FinancialsPanel    result={result} />}
+          <div className={activeTab === 'Credits' ? 'block' : 'hidden print:block'}>
+            <CreditsPanel result={result} />
+          </div>
+          <div className={activeTab === 'Collaborators' ? 'block' : 'hidden print:block'}>
+            <CollaboratorsPanel result={result} />
+          </div>
+          <div className={activeTab === 'Financials' ? 'block' : 'hidden print:block'}>
+            <FinancialsPanel result={result} />
+          </div>
         </div>
       </div>
     </div>

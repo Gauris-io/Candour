@@ -4,15 +4,26 @@
  * Simple profile form. Doesn't save to backend yet, just local state.
  */
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 export default function Profile() {
   const [formData, setFormData] = useState({
     name: 'User',
-    role: '',
+    role: 'actor',
     company: ''
   })
   const [saved, setSaved] = useState(false)
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('candour.profile')
+      if (stored) {
+        setFormData(JSON.parse(stored))
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, [])
 
   const handleChange = (e) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))
@@ -21,8 +32,12 @@ export default function Profile() {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    // Simulate save
-    setTimeout(() => setSaved(true), 300)
+    try {
+      localStorage.setItem('candour.profile', JSON.stringify(formData))
+    } catch (e) {
+      // ignore
+    }
+    setSaved(true)
   }
 
   return (
@@ -61,15 +76,18 @@ export default function Profile() {
           <label htmlFor="profile-role" className="block font-app text-sm font-bold text-ink mb-1.5">
             Primary Role
           </label>
-          <input
+          <select
             id="profile-role"
             name="role"
-            type="text"
-            placeholder="e.g. Independent Producer"
             value={formData.role}
             onChange={handleChange}
-            className="w-full font-app text-sm text-ink placeholder-ink-soft/70 border border-ink/15 rounded-lg px-4 py-2.5 focus:outline-none focus:border-ink/40 transition-colors bg-transparent"
-          />
+            className="w-full font-app text-sm text-ink border border-ink/15 rounded-lg px-4 py-2.5 focus:outline-none focus:border-ink/40 transition-colors bg-transparent appearance-none"
+          >
+            <option value="actor">Actor</option>
+            <option value="writer">Writer</option>
+            <option value="investor">Investor</option>
+            <option value="indie_crew">Indie Crew</option>
+          </select>
         </div>
 
         {/* Company */}

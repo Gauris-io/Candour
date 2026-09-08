@@ -80,7 +80,32 @@ export function useCandourCheck() {
 
     // The agent receives the raw name as a natural-language subject
     // (the role-framing is added server-side when role is supplied)
-    askAgent(name.trim(), role)
+    let agentQuestion = name.trim()
+
+    try {
+      const stored = localStorage.getItem('candour.profile')
+      if (stored) {
+        const parsed = JSON.parse(stored)
+        if (parsed.name && parsed.name !== 'User') {
+          agentQuestion = `The person asking is named ${parsed.name}. ` + agentQuestion
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+
+    const claimParts = []
+    if (claimedCredits !== undefined && claimedCredits !== '' && Number(claimedCredits) > 0) {
+      claimParts.push(`The subject claims ${Number(claimedCredits)} producing credits.`)
+    }
+    if (claimedCollaborators && claimedCollaborators.length > 0) {
+      claimParts.push(`The subject claims to have worked with: ${claimedCollaborators.join(', ')}.`)
+    }
+    if (claimParts.length > 0) {
+      agentQuestion += `\n\n${claimParts.join(' ')} Verify these claims against the data and state plainly which are corroborated and which are not.`
+    }
+
+    askAgent(agentQuestion, role)
       .then(text => setAgentResponse(text))
       .catch(err => setAgentError(err.message ?? 'Unknown error from /query'))
       .finally(() => setAgentLoading(false))

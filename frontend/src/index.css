@@ -38,6 +38,7 @@ body {
   outline-offset: 2px;
 }
 
+
 /* ── Utility: fade-in animation for report card ────────────────────────────── */
 @keyframes fadeSlideIn {
   from {
@@ -64,4 +65,16 @@ body {
   animation: pulse-dot 1.2s ease-in-out infinite;
 }
 
-
+/* ── Print styles ──────────────────────────────────────────────────────────── */
+@media print {
+  body {
+    background: none;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  html, body { height: auto !important; }
+  .overflow-hidden, .overflow-y-auto { overflow: visible !important; }
+  .bg-base { background: none; }
+  .bg-card { background: white; }
+  .min-w-0, .max-w-4xl, .max-w-6xl { max-width: none !important; width: 100% !important; }
+}

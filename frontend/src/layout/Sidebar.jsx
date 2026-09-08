@@ -49,7 +49,7 @@ function NavItem({ to, end, title, Icon }) {
 
 export default function Sidebar() {
   return (
-    <div className="w-[88px] hover:w-[256px] transition-[width] duration-300 ease-out flex-shrink-0 flex flex-col h-screen py-4 px-2 group relative z-50">
+    <div className="w-[88px] hover:w-[256px] transition-[width] duration-300 ease-out flex-shrink-0 flex flex-col sticky top-0 self-start h-screen py-4 px-2 group z-50 print:hidden">
       <aside className="flex-1 bg-card rounded-[32px] shadow-sm flex flex-col justify-center overflow-hidden border border-ink/5 w-full transition-all duration-300 relative">
 
         {/* Nav Items - Centered vertically */}

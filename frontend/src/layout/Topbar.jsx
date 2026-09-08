@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom'
 
 export default function Topbar() {
   return (
-    <header className="h-16 px-8 bg-transparent flex items-center justify-between flex-shrink-0 z-10 relative">
+    <header className="h-16 px-8 bg-transparent flex items-center justify-between flex-shrink-0 z-10 relative print:hidden">
       
       {/* Left side: Logo */}
       <div className="flex items-center">
