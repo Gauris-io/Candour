@@ -4,5 +4,7 @@ google-adk
 google-genai
 networkx
 
-# Dependencies for agent to be added later:
-# mcp
+python-dotenv
+mcp-clickhouse
+mcp<2.0.0
+clickhouse-connect

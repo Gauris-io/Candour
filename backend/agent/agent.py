@@ -1,57 +1,68 @@
 # pyrefly: ignore [missing-import]
 from google.adk.agents import LlmAgent
+# pyrefly: ignore [missing-import]
+from google.adk.tools import McpToolset
+from google.adk.tools.mcp_tool.mcp_session_manager import StdioConnectionParams
+from mcp import StdioServerParameters
 from .instructions import TRACK_RECORD_INSTRUCTION
-import networkx as nx
+import os
+import sys
+import time
+import asyncio
 
-def get_track_record(entity_name: str) -> dict:
-    # TODO: replace with mcp-clickhouse call to metrics.* views
-    return {
-        "completion_rate": 0.82,
-        "avg_time_to_release_months": 14,
-        "credits_found": 6,
-        "cohort_percentile": 65,
-    }
+# --- Rate Limit Monkey Patch ---
+# gemini-3.5-flash-lite free tier: check AI Studio for current RPM.
+# The lock ensures concurrent /query calls queue instead of racing past
+# the sleep and both hitting the RPM limit simultaneously.
+import google.genai.models
+_original_generate_content_async = google.genai.models.AsyncModels.generate_content
 
-def get_network_flags(entity_name: str) -> dict:
-    # TODO: replace with real verified edges from mcp-clickhouse
-    print(f"DEBUG entity_name received: '{entity_name}'")
-    G = nx.Graph()
-    verified_edges = [
-        ("John", "Producer A"),
-        ("John", "Editor B"),
-        ("John", "DP C"),
-    ]
-    G.add_edges_from(verified_edges)
+_rate_limit_lock = asyncio.Lock()
+_last_call_time = 0.0
 
-    # TODO: replace with claims scraped/entered from the pitch itself
-    claimed_connections = ["Producer A", "Actor X", "Studio Y"]
 
-    verified = [c for c in claimed_connections if G.has_edge(entity_name, c)]
-    unverified = [c for c in claimed_connections if not G.has_edge(entity_name, c)]
+async def rate_limited_generate_content(self, *args, **kwargs):
+    global _last_call_time
+    async with _rate_limit_lock:
+        elapsed = time.time() - _last_call_time
+        if elapsed < 13.0:
+            await asyncio.sleep(13.0 - elapsed)
+        _last_call_time = time.time()
+    return await _original_generate_content_async(self, *args, **kwargs)
 
-    total = len(claimed_connections)
-    unverified_ratio = len(unverified) / total if total else 0
 
-    if unverified_ratio >= 0.66:
-        suspicion_level = "high"
-    elif unverified_ratio >= 0.33:
-        suspicion_level = "medium"
-    else:
-        suspicion_level = "low"
+google.genai.models.AsyncModels.generate_content = rate_limited_generate_content
+# -------------------------------
 
-    return {
-        "verified_connections": verified,
-        "unverified_claims": unverified,
-        "suspicion_level": suspicion_level,
-    }
+uvx_executable = "uvx.exe" if os.name == "nt" else "uvx"
+uvx_path = os.path.join(os.path.dirname(sys.executable), uvx_executable)
+if not os.path.isfile(uvx_path):
+    raise RuntimeError(
+        f"Could not find {uvx_executable} in the virtual environment at {uvx_path}. "
+        "Is uv installed?"
+    )
 
-def get_financial_score(entity_name: str) -> dict:
-    # TODO: replace with mcp-clickhouse call
-    return {"budget_to_boxoffice_ratio": None, "score": None}
+mcp_toolset = McpToolset(
+    connection_params=StdioConnectionParams(
+        server_params=StdioServerParameters(
+            command=uvx_path,
+            args=["mcp-clickhouse"],
+            env={
+                "CLICKHOUSE_HOST": os.environ.get("CLICKHOUSE_HOST", ""),
+                "CLICKHOUSE_PORT": os.environ.get("CLICKHOUSE_PORT", "8443"),
+                "CLICKHOUSE_USER": os.environ.get("CLICKHOUSE_USER", "default"),
+                "CLICKHOUSE_PASSWORD": os.environ.get("CLICKHOUSE_PASSWORD", ""),
+                "CLICKHOUSE_DATABASE": os.environ.get("CLICKHOUSE_DATABASE", "default"),
+                "PATH": os.environ.get("PATH", ""),
+            }
+        ),
+        timeout=60.0
+    )
+)
 
 root_agent = LlmAgent(
-    model="gemini-3.7-flash",
+    model="gemini-3.5-flash-lite",
     name="track_record_agent",
     instruction=TRACK_RECORD_INSTRUCTION,
-    tools=[get_track_record, get_network_flags, get_financial_score],
+    tools=[mcp_toolset],
 )
