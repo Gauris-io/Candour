@@ -6,12 +6,6 @@ const HomeIcon = ({ active }) => (
   </svg>
 )
 
-const ReportIcon = ({ active }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" className="w-[26px] h-[26px] transition-colors" fill={active ? 'currentColor' : 'none'} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={active ? "0" : "2"}>
-    <path strokeLinecap="round" strokeLinejoin="round" d={active ? "M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" : "M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"} />
-  </svg>
-)
-
 const AboutIcon = ({ active }) => (
   <svg xmlns="http://www.w3.org/2000/svg" className="w-[26px] h-[26px] transition-colors" fill="currentColor" viewBox="0 0 24 24" stroke="none">
     {/* Custom SVG path combining two figures similar to the user's reference */}
@@ -62,10 +56,6 @@ export default function Sidebar() {
         <nav className="flex-col flex w-[240px]" aria-label="Sidebar navigation">
           <NavItem to="/" end title="Home" Icon={HomeIcon} />
           
-          {/* Subtle separator below Home, as seen in mockup */}
-          <div className="w-full h-px bg-pink/20 my-2 scale-x-50 opacity-0 group-hover:scale-x-100 group-hover:opacity-100 transition-all duration-500 origin-left ml-[36px]" />
-          
-          <NavItem to="/report" title="Report" Icon={ReportIcon} />
           <NavItem to="/about" title="About Us" Icon={AboutIcon} />
         </nav>
 

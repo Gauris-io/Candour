@@ -18,7 +18,7 @@
  * @property {string}   role
  * @property {{ found: number|null, claimed: number|null }} credits
  * @property {{ verified: string[], unverified: string[] }} collaborators
- * @property {{ budgetToBoxOffice: number|null, score: number|null }} financials
+ * @property {{ avgBoxOfficeMultiple: number|null, avgRoi: number|null, projectsWithFinancialData: number|null, score: number|null }} financials
  * @property {string[]} flags
  */
 
@@ -47,8 +47,10 @@ export function validateResponse(raw) {
     },
 
     financials: {
-      budgetToBoxOffice: raw.financials?.budgetToBoxOffice ?? null,
-      score:             raw.financials?.score             ?? null,
+      avgBoxOfficeMultiple: raw.financials?.avgBoxOfficeMultiple ?? null,
+      avgRoi: raw.financials?.avgRoi ?? null,
+      projectsWithFinancialData: raw.financials?.projectsWithFinancialData ?? null,
+      score: raw.financials?.score ?? null,
     },
 
     flags: Array.isArray(raw.flags) ? raw.flags : [],

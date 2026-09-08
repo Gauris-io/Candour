@@ -30,8 +30,10 @@ const MOCK_CLEAN = {
   },
 
   financials: {
-    budgetToBoxOffice: 3.4,
-    score:             82,
+    avgBoxOfficeMultiple: 3.4,
+    avgRoi: 0.85,
+    projectsWithFinancialData: 6,
+    score: 82,
   },
 
   flags: [],
@@ -54,8 +56,10 @@ const MOCK_FLAGGED = {
   },
 
   financials: {
-    budgetToBoxOffice: null,
-    score:             null,
+    avgBoxOfficeMultiple: null,
+    avgRoi: null,
+    projectsWithFinancialData: null,
+    score: null,
   },
 
   flags: [
@@ -82,8 +86,10 @@ const MOCK_EMPTY = {
   },
 
   financials: {
-    budgetToBoxOffice: null,
-    score:             null,
+    avgBoxOfficeMultiple: null,
+    avgRoi: null,
+    projectsWithFinancialData: null,
+    score: null,
   },
 
   flags: [

@@ -12,7 +12,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Layout from './layout/Layout'
 import Home   from './pages/Home'
-import Report from './pages/Report'
 import About  from './pages/About'
 import Profile from './pages/Profile'
 
@@ -22,7 +21,6 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index         element={<Home />}    />
-          <Route path="report"  element={<Report />}  />
           <Route path="about"   element={<About />}   />
           <Route path="profile" element={<Profile />} />
         </Route>

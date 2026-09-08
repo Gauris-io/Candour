@@ -104,8 +104,7 @@ function CreditsPanel({ result }) {
         <LedgerRow
           label="credits_claimed_by_subject"
           value={nullLabel(credits.claimed)}
-          flagged={credits.claimed === null}
-          footnote="Not yet available — scraped claim data not yet wired into backend."
+          flagged={false}
         />
       </div>
       {flags.length > 0 && <EvidenceSummary flags={flags} />}
@@ -170,20 +169,30 @@ function CollaboratorsPanel({ result }) {
 
 function FinancialsPanel({ result }) {
   const { financials, flags } = result
-  const financialFlags = flags.filter(f => /financial|budget|box.?office/i.test(f))
+  const financialFlags = flags.filter(f => /financial|budget|box.?office|roi/i.test(f))
 
   return (
     <div className="space-y-4">
       <div className="space-y-0">
         <LedgerRow
-          label="budget_to_box_office_ratio"
-          value={nullLabel(financials.budgetToBoxOffice)}
-          flagged={financials.budgetToBoxOffice === null}
+          label="avg_box_office_multiple"
+          value={nullLabel(financials.avgBoxOfficeMultiple)}
+          flagged={financials.avgBoxOfficeMultiple === null}
           footnote={
-            financials.budgetToBoxOffice === null
-              ? 'Data unavailable — not yet wired from industry databases.'
+            financials.avgBoxOfficeMultiple === null
+              ? 'Data unavailable for this person’s projects — outside dataset scope or no TMDb/Wikidata match.'
               : undefined
           }
+        />
+        <LedgerRow
+          label="avg_roi"
+          value={nullLabel(financials.avgRoi)}
+          flagged={financials.avgRoi === null}
+        />
+        <LedgerRow
+          label="projects_with_financial_data"
+          value={nullLabel(financials.projectsWithFinancialData)}
+          flagged={false}
         />
         <LedgerRow
           label="financial_viability_score"
@@ -191,7 +200,7 @@ function FinancialsPanel({ result }) {
           flagged={financials.score === null}
           footnote={
             financials.score === null
-              ? 'Score requires budget-to-box-office ratio to compute.'
+              ? 'Score requires cohort/genre data — unavailable outside a narrow high-vote-count slice of titles.'
               : undefined
           }
         />
@@ -201,7 +210,7 @@ function FinancialsPanel({ result }) {
 
       {financialFlags.length === 0 && financials.score === null && (
         <p className="font-mono text-xs italic text-ink-soft">
-          Financial data will populate once industry database integration is complete.
+          Financial data unavailable for this entity — see footnotes above for why.
         </p>
       )}
     </div>
