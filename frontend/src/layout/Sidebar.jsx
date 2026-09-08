@@ -1,74 +1,75 @@
-/**
- * Sidebar.jsx
- *
- * Left-hand navigation sidebar.
- */
-
 import { Link, NavLink } from 'react-router-dom'
+
+const HomeIcon = ({ active }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="w-[26px] h-[26px] transition-colors" fill={active ? 'currentColor' : 'none'} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={active ? "0" : "2"}>
+    <path strokeLinecap="round" strokeLinejoin="round" d={active ? "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" : "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"} />
+  </svg>
+)
+
+const ReportIcon = ({ active }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="w-[26px] h-[26px] transition-colors" fill={active ? 'currentColor' : 'none'} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={active ? "0" : "2"}>
+    <path strokeLinecap="round" strokeLinejoin="round" d={active ? "M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" : "M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"} />
+  </svg>
+)
+
+const AboutIcon = ({ active }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="w-[26px] h-[26px] transition-colors" fill="currentColor" viewBox="0 0 24 24" stroke="none">
+    {/* Custom SVG path combining two figures similar to the user's reference */}
+    <circle cx="9" cy="7.5" r="3.5" />
+    <circle cx="16" cy="10" r="2.5" />
+    <path d="M12.5 13.5c-1.5-1.5-4-1.5-6.5-1-1.5.5-2.5 2-2 4 .5 2 1.5 6.5 1.5 6.5h7V15c0-.5-.2-1-.5-1.5z" />
+    <path d="M14 16v7h6.5s1-4 1.5-5.5c.5-1.5-.5-3-2-3.5-1.5-.5-4 1-6 2z" />
+  </svg>
+)
+
+function NavItem({ to, end, title, Icon }) {
+  return (
+    <NavLink to={to} end={end} className="flex items-center outline-none h-[64px] group/item w-[240px] relative">
+      {({ isActive }) => (
+        <>
+          {/* Animated Spotlight Glow Effect */}
+          <div className={[
+            "absolute left-[36px] top-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-pink/25 blur-md pointer-events-none transition-all duration-500",
+            isActive ? "opacity-100 scale-100" : "opacity-0 scale-50"
+          ].join(' ')} />
+
+          {/* Icon Container */}
+          <div className={['relative z-10 w-[72px] flex justify-center items-center transition-all duration-300', isActive ? 'text-pink drop-shadow-[0_0_8px_rgba(227,121,143,0.6)]' : 'text-ink/80 group-hover/item:text-pink'].join(' ')}>
+            <Icon active={isActive} />
+          </div>
+          
+          {/* Text Container */}
+          <div className="flex-1 overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap pl-1 relative z-10">
+            <span className={[
+              'font-app font-bold text-[15px] inline-block transition-all duration-300',
+              isActive ? 'bg-pink text-white px-3.5 py-1 rounded-full shadow-[0_0_12px_rgba(227,121,143,0.4)]' : 'text-ink/80'
+            ].join(' ')}>
+              {title}
+            </span>
+          </div>
+        </>
+      )}
+    </NavLink>
+  )
+}
 
 export default function Sidebar() {
   return (
-    <aside className="w-64 border-r border-row-line bg-card flex flex-col h-screen flex-shrink-0">
-      
-      {/* Brand */}
-      <div className="p-6 border-b border-row-line">
-        <Link to="/" className="flex flex-col group">
-          <span className="font-app font-bold text-2xl text-pink tracking-tight leading-none group-hover:opacity-85 transition-opacity">
-            Candour
-          </span>
-          <span className="font-app text-xs text-ink-soft font-medium opacity-70 mt-1">
-            by Agentic Cinema
-          </span>
-        </Link>
-      </div>
+    <div className="w-[88px] hover:w-[256px] transition-[width] duration-300 ease-out flex-shrink-0 flex flex-col h-screen py-4 px-2 group relative z-50">
+      <aside className="flex-1 bg-card rounded-[32px] shadow-sm flex flex-col justify-center overflow-hidden border border-ink/5 w-full transition-all duration-300 relative">
 
-      {/* Nav Links */}
-      <nav className="flex-1 p-4 space-y-2" aria-label="Sidebar navigation">
-        <NavLink
-          to="/"
-          end
-          className={({ isActive }) =>
-            [
-              'block px-4 py-2.5 rounded-lg font-app text-sm font-bold transition-all duration-150',
-              isActive
-                ? 'bg-ink/5 text-ink'
-                : 'text-ink-soft hover:bg-ink/5 hover:text-ink',
-            ].join(' ')
-          }
-        >
-          Home
-        </NavLink>
-        
-        {/* We keep Report always visible for now, it'll bounce back to home if no state */}
-        <NavLink
-          to="/report"
-          className={({ isActive }) =>
-            [
-              'block px-4 py-2.5 rounded-lg font-app text-sm font-bold transition-all duration-150',
-              isActive
-                ? 'bg-ink/5 text-ink'
-                : 'text-ink-soft hover:bg-ink/5 hover:text-ink',
-            ].join(' ')
-          }
-        >
-          Report
-        </NavLink>
+        {/* Nav Items - Centered vertically */}
+        <nav className="flex-col flex w-[240px]" aria-label="Sidebar navigation">
+          <NavItem to="/" end title="Home" Icon={HomeIcon} />
+          
+          {/* Subtle separator below Home, as seen in mockup */}
+          <div className="w-full h-px bg-pink/20 my-2 scale-x-50 opacity-0 group-hover:scale-x-100 group-hover:opacity-100 transition-all duration-500 origin-left ml-[36px]" />
+          
+          <NavItem to="/report" title="Report" Icon={ReportIcon} />
+          <NavItem to="/about" title="About Us" Icon={AboutIcon} />
+        </nav>
 
-        <NavLink
-          to="/about"
-          className={({ isActive }) =>
-            [
-              'block px-4 py-2.5 rounded-lg font-app text-sm font-bold transition-all duration-150',
-              isActive
-                ? 'bg-ink/5 text-ink'
-                : 'text-ink-soft hover:bg-ink/5 hover:text-ink',
-            ].join(' ')
-          }
-        >
-          About
-        </NavLink>
-      </nav>
-
-    </aside>
+      </aside>
+    </div>
   )
 }
