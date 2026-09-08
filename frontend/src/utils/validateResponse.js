@@ -16,6 +16,9 @@
  * @typedef {Object} CandourResult
  * @property {string}   name
  * @property {string}   role
+ * @property {boolean|null} personFound
+ * @property {string|null}  matchType
+ * @property {string[]}     warnings
  * @property {{ found: number|null, claimed: number|null }} credits
  * @property {{ verified: string[], unverified: string[] }} collaborators
  * @property {{ avgBoxOfficeMultiple: number|null, avgRoi: number|null, projectsWithFinancialData: number|null, score: number|null }} financials
@@ -35,6 +38,11 @@ export function validateResponse(raw) {
   return {
     name:  typeof raw.name  === 'string' ? raw.name  : '—',
     role:  typeof raw.role  === 'string' ? raw.role  : '—',
+
+    // Identity resolution metadata — used by ProfileHeader to show interpretation cues
+    personFound: raw.person_found ?? null,
+    matchType:   raw.name_resolution?.match_type ?? null,
+    warnings:    Array.isArray(raw.warnings) ? raw.warnings : [],
 
     credits: {
       found:   raw.credits?.found   ?? null,

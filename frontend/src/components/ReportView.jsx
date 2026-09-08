@@ -21,7 +21,7 @@ function getInitials(name = '') {
 // ── Profile header ───────────────────────────────────────────────────────────
 
 function ProfileHeader({ result }) {
-  const { name, role, credits, collaborators } = result
+  const { name, role, credits, collaborators, personFound, matchType, warnings } = result
   const initials      = getInitials(name)
   const roleLabel     = role.replace('_', ' ')
   const totalCollabs  = collaborators.verified.length + collaborators.unverified.length
@@ -45,10 +45,22 @@ function ProfileHeader({ result }) {
           {name}
         </h1>
 
+        {/* Interpretation / not-found sub-line */}
+        {matchType === 'extracted_from_text' && (
+          <p className="font-mono text-xs text-ink-soft mt-1">
+            Interpreted your query as: {name}
+          </p>
+        )}
+        {personFound === false && warnings.length > 0 && (
+          <p className="font-mono text-xs text-pink mt-1">
+            {warnings[0]}
+          </p>
+        )}
+
         <div className="mt-3 flex flex-wrap items-center gap-2">
-          {/* Role */}
+          {/* Role pill — labelled as the viewer's perspective */}
           <span className="font-app text-xs font-bold px-3 py-1 rounded-full bg-ink/10 text-ink capitalize">
-            {roleLabel}
+            viewing as {roleLabel}
           </span>
 
           {/* Credits found */}

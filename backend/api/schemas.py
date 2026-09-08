@@ -5,6 +5,7 @@ from typing import Literal, Optional
 
 class AskRequest(BaseModel):
     question: str
+    role: Optional[Literal["actor", "writer", "investor", "indie_crew"]] = None
     # Optional session continuity — if not supplied, /query generates a
     # per-request UUID so callers are isolated by default.
     user_id: Optional[str] = None

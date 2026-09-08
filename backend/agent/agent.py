@@ -11,7 +11,10 @@ import time
 import asyncio
 
 # --- Rate Limit Monkey Patch ---
-# gemini-3.5-flash-lite free tier: check AI Studio for current RPM.
+# gemini-3.5-flash-lite: 15 RPM on the free tier.
+# Floor = 60s / 15 = 4.0s, bumped to 4.5s as a safety margin because
+# each /query turn may include multiple tool-calling round trips, each
+# of which counts toward the RPM budget.
 # The lock ensures concurrent /query calls queue instead of racing past
 # the sleep and both hitting the RPM limit simultaneously.
 import google.genai.models
@@ -25,8 +28,8 @@ async def rate_limited_generate_content(self, *args, **kwargs):
     global _last_call_time
     async with _rate_limit_lock:
         elapsed = time.time() - _last_call_time
-        if elapsed < 13.0:
-            await asyncio.sleep(13.0 - elapsed)
+        if elapsed < 4.5:
+            await asyncio.sleep(4.5 - elapsed)
         _last_call_time = time.time()
     return await _original_generate_content_async(self, *args, **kwargs)
 

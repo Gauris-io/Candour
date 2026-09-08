@@ -55,8 +55,13 @@ async def check_credibility(request: CheckRequest):
     # ------------------------------------------------------------------
     # 2. Domain calls — all receive nconst (None-safe).
     # ------------------------------------------------------------------
+    # The role pill is the VIEWER's role, not the subject's. The subject being
+    # vetted is whoever is offering the work — a producer/director — so always
+    # look up their producing record. `role` is still returned in the response
+    # and still drives the agent's persona framing on /query.
+    SUBJECT_LOOKUP_ROLE = "investor"   # maps to category='producer'
     try:
-        track: dict = get_track_record(nconst, role)
+        track: dict = get_track_record(nconst, SUBJECT_LOOKUP_ROLE)
     except Exception as e:
         warnings.append(f"track record data unavailable — {type(e).__name__}")
         track = {}
@@ -68,7 +73,7 @@ async def check_credibility(request: CheckRequest):
         network = {}
 
     try:
-        financials_raw: dict = get_financial_score(nconst, role)
+        financials_raw: dict = get_financial_score(nconst, SUBJECT_LOOKUP_ROLE)
     except Exception as e:
         warnings.append(f"financial data unavailable — {type(e).__name__}")
         financials_raw = {}
@@ -119,7 +124,8 @@ async def check_credibility(request: CheckRequest):
     if completion_rate is not None and completion_rate < 0.5:
         flags.append(f"low project completion rate: {completion_rate:.0%}")
 
-    if cohort_percentile is not None and cohort_percentile < 0.25:
+    if (cohort_percentile is not None and cohort_percentile < 0.25
+        and (completion_rate is None or completion_rate < 0.9)):
         flags.append(
             f"completion-rate cohort percentile is {cohort_percentile:.0%} "
             f"(bottom quartile for comparable professionals)"

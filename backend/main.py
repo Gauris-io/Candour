@@ -70,7 +70,17 @@ async def query_agent(request: AskRequest):
     effective_user_id    = request.user_id    or f"user_{uuid4().hex[:8]}"
     effective_session_id = request.session_id or f"sess_{uuid4().hex[:8]}"
 
-    content = types.Content(role="user", parts=[types.Part(text=request.question)])
+    # When the caller passes a role, prepend a framing sentence so the agent
+    # weights the analysis appropriately for that viewer's concerns.
+    question_text = request.question
+    if request.role:
+        question_text = (
+            f"The person asking is a {request.role} who has been approached by, "
+            f"or is considering working with, the subject of this question. "
+            f"Tailor the analysis to what matters for that role.\n\n{request.question}"
+        )
+
+    content = types.Content(role="user", parts=[types.Part(text=question_text)])
 
     # runner.run is a sync generator — offload to a thread so uvicorn's
     # event loop stays free to handle other requests while the agent works.

@@ -2,16 +2,18 @@
  * useCandourCheck.js
  *
  * Central data hook. Manages:
- *  - loading / error / result state
+ *  - loading / error / result state for /check (deterministic ledger)
+ *  - agentResponse / agentLoading / agentError state for /query (AI brief)
  *  - active tab (Credits | Collaborators | Financials)
  *  - mock vs live toggle via VITE_USE_MOCK env var
  *
- * Components only consume the returned object — they never call fetch() or
- * know about the API shape.
+ * Both calls fire in parallel via Promise.allSettled so one failing
+ * doesn't blank the other — the narrative panel and the ledger are
+ * independently resilient.
  */
 
 import { useState, useCallback } from 'react'
-import { checkCredibility } from '../api/api'
+import { checkCredibility, askAgent } from '../api/api'
 import { validateResponse } from '../utils/validateResponse'
 import { getMockResult } from '../mock/mockData'
 
@@ -24,43 +26,85 @@ export const TABS = ['Credits', 'Collaborators', 'Financials']
  *   result: import('../utils/validateResponse').CandourResult | null,
  *   loading: boolean,
  *   error: string | null,
+ *   agentResponse: string | null,
+ *   agentLoading: boolean,
+ *   agentError: string | null,
  *   check: (name: string, role: string, claimedCredits?: string|number, claimedCollaborators?: string[]) => void,
  *   activeTab: string,
  *   setActiveTab: (tab: string) => void,
  * }}
  */
 export function useCandourCheck() {
-  const [result, setResult]       = useState(null)
-  const [loading, setLoading]     = useState(false)
-  const [error, setError]         = useState(null)
+  const [result, setResult]           = useState(null)
+  const [loading, setLoading]         = useState(false)
+  const [error, setError]             = useState(null)
+
+  const [agentResponse, setAgentResponse] = useState(null)
+  const [agentLoading, setAgentLoading]   = useState(false)
+  const [agentError, setAgentError]       = useState(null)
+
   const [activeTab, setActiveTab] = useState(TABS[0])
 
   const check = useCallback(async (name, role, claimedCredits, claimedCollaborators) => {
     if (!name.trim()) return
 
+    // Reset all state
     setLoading(true)
     setError(null)
     setResult(null)
-    setActiveTab(TABS[0]) // reset to Credits tab on each new check
+    setAgentLoading(true)
+    setAgentError(null)
+    setAgentResponse(null)
+    setActiveTab(TABS[0])
 
-    try {
-      let raw
-
-      if (USE_MOCK) {
-        // Simulate network latency in mock mode so the loading state is visible
+    if (USE_MOCK) {
+      // Mock mode: only the /check path is mocked; agent panel shows nothing
+      try {
         await new Promise(r => setTimeout(r, 800))
-        raw = getMockResult(name.trim(), role, claimedCredits, claimedCollaborators)
-      } else {
-        raw = await checkCredibility(name.trim(), role, claimedCredits, claimedCollaborators)
+        const raw = getMockResult(name.trim(), role, claimedCredits, claimedCollaborators)
+        setResult(validateResponse(raw))
+      } catch (err) {
+        setError(err.message ?? 'Unknown error')
+      } finally {
+        setLoading(false)
+        setAgentLoading(false)
       }
-
-      setResult(validateResponse(raw))
-    } catch (err) {
-      setError(err.message ?? 'Unknown error')
-    } finally {
-      setLoading(false)
+      return
     }
+
+    // Live mode: fire both in parallel, settle independently
+    const [checkOutcome, agentOutcome] = await Promise.allSettled([
+      checkCredibility(name.trim(), role, claimedCredits, claimedCollaborators),
+      // The agent receives the raw name as a natural-language subject
+      // (the role-framing is added server-side when role is supplied)
+      askAgent(name.trim(), role),
+    ])
+
+    // /check result
+    if (checkOutcome.status === 'fulfilled') {
+      try {
+        setResult(validateResponse(checkOutcome.value))
+      } catch (err) {
+        setError(err.message ?? 'Response validation error')
+      }
+    } else {
+      setError(checkOutcome.reason?.message ?? 'Unknown error from /check')
+    }
+    setLoading(false)
+
+    // /query (agent) result
+    if (agentOutcome.status === 'fulfilled') {
+      setAgentResponse(agentOutcome.value)
+    } else {
+      setAgentError(agentOutcome.reason?.message ?? 'Unknown error from /query')
+    }
+    setAgentLoading(false)
+
   }, [])
 
-  return { result, loading, error, check, activeTab, setActiveTab }
+  return {
+    result, loading, error,
+    agentResponse, agentLoading, agentError,
+    check, activeTab, setActiveTab,
+  }
 }

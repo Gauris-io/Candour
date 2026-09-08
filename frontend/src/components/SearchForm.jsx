@@ -61,7 +61,9 @@ export default function SearchForm({ onCheck, loading, error }) {
       aria-label="Credibility check form"
     >
       {/* Role selector pills */}
-      <div className="flex flex-wrap gap-2 justify-center" role="group" aria-label="Select your role">
+      <div className="flex flex-col items-center gap-2 w-full">
+        <label className="font-app text-sm font-bold text-ink">Your role</label>
+        <div className="flex flex-wrap gap-2 justify-center" role="group" aria-label="Select your role">
         {ROLES.map(({ value, label }) => {
           const active = role === value
           return (
@@ -85,6 +87,7 @@ export default function SearchForm({ onCheck, loading, error }) {
             </button>
           )
         })}
+        </div>
       </div>
 
       {/* Name input + submit */}
@@ -132,7 +135,7 @@ export default function SearchForm({ onCheck, loading, error }) {
             type="text"
             value={name}
             onChange={handleNameChange}
-            placeholder="Producer or director name…"
+            placeholder="Ask about a producer or director…"
             disabled={loading}
             aria-invalid={!!nameError}
             aria-label="Producer or director name"

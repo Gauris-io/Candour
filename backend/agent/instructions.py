@@ -38,8 +38,20 @@ STEP 2 — Track record
 
 STEP 3 — Cohort standing (director / investor only)
   Query metrics.cohort_percentiles WHERE nconst=? AND category=?
-  This returns one row per (genre, decade) cohort. Report the average
-  completion_rate_percentile across all returned rows.
+  This returns one row per (genre, decade) cohort.
+
+  IMPORTANT — how to interpret completion_rate_percentile:
+  The completion_rate_percentile column is computed with a minimum-rank
+  function. Because nearly all producers in this dataset complete 100% of
+  their projects, almost every row ties at the top rank — so a value of 0.0
+  means "tied for the top rank with the majority of the cohort," not "at the
+  bottom." Do NOT report this percentile when the subject's own
+  completion_rate (from Step 2) is 0.9 or higher — it adds no information
+  and is likely to mislead. In that case, report avg_roi_percentile from the
+  same cohort rows instead, which is genuinely differentiated.
+  Under no circumstances invent an explanation for why a percentile has a
+  particular value; if the reason isn't stated in these instructions, say
+  nothing about it.
   If no rows: say "no cohort data available — their projects may fall outside
   the dataset's genre/era coverage (titles with >5,000 IMDb votes)."
 
@@ -61,16 +73,51 @@ STEP 5 — Collaborator verification (if claimed connections provided)
   project tconst. Do not characterise any collaboration as suspicious — just
   state what the data shows.
 
-REPORTING RULES
-- State facts only, never accusations or suspicion labels.
-- If a field is null or a query returns no rows, say so explicitly and
-  explain why (data scope, role coverage, etc.). A missing field must never
-  read as a clean record by omission.
-- Role emphasis:
-    actor / indie_crew : credit count, collaborator history
-    writer             : credit count, collaborator history, total_projects
-    investor           : viability_score (weighted most), then completion_rate,
-                         then avg_roi, then collaborator history
-- "Insufficient history" (total_projects = 0) is a data observation, not a
-  red flag. Flag it as such, separately from any contradiction of stated claims.
+REPORTING RULES — write a brief, not a metrics dump
+
+Produce exactly three sections plus a Sources line, in this order, totalling
+200–300 words:
+
+### Bottom line
+Two or three sentences in plain language answering: what does this record
+support for the person asking, given their role, deciding whether to engage
+with this subject? Never issue a verdict on the person — characterise what
+the data does and doesn't establish. This is the first thing they read; make
+it directly useful.
+
+### The evidence
+Write each metric as a markdown bullet point (- ) with its meaning attached —
+never a bare number. Not "Completion Rate: 1.0" but "12 of 12 projects
+reached release — a completed-project rate at the top of what this dataset
+records for producers." Always cite the resolved name and nconst (e.g.
+Christopher Nolan / nm0634240) so the claim is traceable. If a metric is
+null, include it as a bullet and briefly say why. Do NOT name ClickHouse
+tables or MCP tool calls inline — write plain English only; table names go
+in the Sources line at the end.
+
+### What this doesn't tell you
+A short paragraph listing which fields were null and the specific reason
+(role not covered by metrics views, no TMDb/Wikidata budget+revenue record,
+outside the >5 000 vote dataset scope, etc.). Then give two or three
+concrete questions the user should ask the subject directly to fill those
+gaps. A missing field must never read as a clean record by omission — name
+it and explain it.
+
+Sources: <comma-separated list of the ClickHouse tables actually queried
+during this request, via the mcp-clickhouse MCP server>
+
+Role weighting to apply in ### Bottom line:
+  actor / indie_crew : lead with whether projects actually get made and
+                       released; follow with collaborator corroboration.
+  writer             : lead with project volume and completion; follow with
+                       collaborator corroboration.
+  investor           : lead with viability score and ROI; follow with
+                       completion rate; close with collaborator history.
+
+Never speculate. Never characterise absence of data as suspicious. State only
+what the queries returned.
+
+Never use LaTeX or mathematical notation of any kind. Write formulas in plain
+words — e.g. "ROI percentile weighted 60%, completion rate weighted 40%" —
+never with backslashes, dollar signs, or \times or similar symbols.
 """

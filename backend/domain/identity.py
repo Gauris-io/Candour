@@ -105,6 +105,35 @@ def resolve_identity(name: str) -> ResolutionResult:
             match_type="partial",
         )
 
+    # Tier 3b — free-text containment. The input may be a whole sentence that
+    # contains a name ("I'm considering Christopher Nolan for..."). Tier 3 asks
+    # whether a NAME is a superset of the input; this asks the inverse — which
+    # known name appears INSIDE the input text?
+    rows = run_query(
+        "SELECT nconst, name, verified FROM identity.person_bridge "
+        "WHERE name != '' "
+        "  AND length(name) >= 6 "
+        "  AND position(name, ' ') > 0 "
+        "  AND positionCaseInsensitive({text:String}, name) > 0 "
+        "ORDER BY length(name) DESC, verified DESC LIMIT 5",
+        parameters={"text": name},
+    )
+    candidates = _rows_to_candidates(rows)
+    if len(candidates) == 1:
+        c = candidates[0]
+        return ResolutionResult(
+            status="resolved",
+            nconst=c["nconst"],
+            matched_name=c["name"],
+            match_type="extracted_from_text",
+        )
+    if candidates:
+        return ResolutionResult(
+            status="ambiguous",
+            candidates=candidates,
+            match_type="extracted_from_text",
+        )
+
     return ResolutionResult(status="not_found")
 
 
