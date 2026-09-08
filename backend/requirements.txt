@@ -8,3 +8,4 @@ python-dotenv
 mcp-clickhouse
 mcp<2.0.0
 clickhouse-connect
+uv

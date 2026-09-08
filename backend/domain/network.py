@@ -17,6 +17,7 @@ def get_network_flags(nconst: str | None, claimed_connections: list[str]) -> dic
         return safe_result
 
     if not nconst:
+        safe_result["suspicion_level"] = "unverifiable"
         return safe_result
 
     # 1. Fetch actual connections for this nconst from collaborator_edges.

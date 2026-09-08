@@ -34,19 +34,38 @@ async def rate_limited_generate_content(self, *args, **kwargs):
 google.genai.models.AsyncModels.generate_content = rate_limited_generate_content
 # -------------------------------
 
-uvx_executable = "uvx.exe" if os.name == "nt" else "uvx"
-uvx_path = os.path.join(os.path.dirname(sys.executable), uvx_executable)
-if not os.path.isfile(uvx_path):
+import shutil
+
+# 1. Prefer mcp-clickhouse's own console script (it is a dependency)
+cmd_path = shutil.which("mcp-clickhouse")
+mcp_args = []
+
+# 2. Fall back to uvx on PATH
+if not cmd_path:
+    uvx_cmd = "uvx.exe" if os.name == "nt" else "uvx"
+    cmd_path = shutil.which(uvx_cmd)
+    if cmd_path:
+        mcp_args = ["mcp-clickhouse"]
+
+# 3. Fall back to the old next-to-sys.executable check
+if not cmd_path:
+    uvx_executable = "uvx.exe" if os.name == "nt" else "uvx"
+    uvx_path = os.path.join(os.path.dirname(sys.executable), uvx_executable)
+    if os.path.isfile(uvx_path):
+        cmd_path = uvx_path
+        mcp_args = ["mcp-clickhouse"]
+
+if not cmd_path:
     raise RuntimeError(
-        f"Could not find {uvx_executable} in the virtual environment at {uvx_path}. "
-        "Is uv installed?"
+        "Could not find mcp-clickhouse or uvx in the environment or on PATH. "
+        "Please ensure mcp-clickhouse or uv is installed."
     )
 
 mcp_toolset = McpToolset(
     connection_params=StdioConnectionParams(
         server_params=StdioServerParameters(
-            command=uvx_path,
-            args=["mcp-clickhouse"],
+            command=cmd_path,
+            args=mcp_args,
             env={
                 "CLICKHOUSE_HOST": os.environ.get("CLICKHOUSE_HOST", ""),
                 "CLICKHOUSE_PORT": os.environ.get("CLICKHOUSE_PORT", "8443"),
