@@ -11,7 +11,7 @@ export default {
       // font-app      → "Baloo 2"                  (all UI chrome)
       // font-mono     → "IBM Plex Mono"             (report/evidence data ONLY)
       fontFamily: {
-        heading: ['"Oleo Script Swash Caps"', 'cursive'],
+        heading: ['"Merriweather"', 'serif'],
         app:     ['"Baloo 2"', 'sans-serif'],
         mono:    ['"IBM Plex Mono"', 'monospace'],
       },

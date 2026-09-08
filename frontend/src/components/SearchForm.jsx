@@ -57,11 +57,11 @@ export default function SearchForm({ onCheck, loading, error }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="px-8 pb-6 pt-4 flex flex-col gap-4"
+      className="px-8 pb-10 pt-6 flex flex-col gap-8 w-full max-w-4xl mx-auto items-center"
       aria-label="Credibility check form"
     >
       {/* Role selector pills */}
-      <div className="flex flex-wrap gap-2" role="group" aria-label="Select your role">
+      <div className="flex flex-wrap gap-2 justify-center" role="group" aria-label="Select your role">
         {ROLES.map(({ value, label }) => {
           const active = role === value
           return (
@@ -88,12 +88,12 @@ export default function SearchForm({ onCheck, loading, error }) {
       </div>
 
       {/* Name input + submit */}
-      <div className="flex gap-3 items-stretch">
+      <div className="flex gap-3 items-stretch w-full">
 
         {/* ── Wrapper: checker via inline style (bypasses Tailwind/Vite url() quirks) ── */}
         <div
           className={[
-            'flex-1 relative rounded-lg border border-ink/15 overflow-hidden',
+            'group flex-1 relative rounded-lg border border-ink/15 overflow-hidden transition-all duration-300',
             loading ? 'opacity-50' : '',
           ].join(' ')}
           style={{
@@ -103,11 +103,11 @@ export default function SearchForm({ onCheck, loading, error }) {
           }}
         >
           {/* Blur layer: Softens the checker lines underneath */}
-          <div className="absolute inset-0 pointer-events-none backdrop-blur-[3px] z-0" />
+          <div className="absolute inset-0 pointer-events-none backdrop-blur-[3px] group-focus-within:backdrop-blur-md group-focus-within:bg-[#F5F1DC]/80 transition-all duration-300 z-0" />
 
           {/* True Marbling overlay: High-quality marble texture tinting the checker */}
           <div
-            className="absolute inset-0 pointer-events-none mix-blend-multiply opacity-60 z-0"
+            className="absolute inset-0 pointer-events-none mix-blend-multiply opacity-60 group-focus-within:opacity-20 transition-all duration-300 z-0"
             style={{
               backgroundImage: "url('/marble.jpg')",
               backgroundSize: 'cover',
@@ -116,7 +116,7 @@ export default function SearchForm({ onCheck, loading, error }) {
           />
 
           {/* Silky sheen: Warm, soft flowing highlight that blends into the pink/beige without looking icy or white */}
-          <div className="absolute inset-0 pointer-events-none bg-gradient-to-r from-transparent via-pink/25 to-transparent mix-blend-overlay opacity-80 z-0" />
+          <div className="absolute inset-0 pointer-events-none bg-gradient-to-r from-transparent via-pink/25 to-transparent mix-blend-overlay opacity-80 group-focus-within:opacity-40 transition-all duration-300 z-0" />
 
           {/* Retro mic — never dims (sits above the ::before overlay in z-order) */}
           <img
@@ -142,9 +142,9 @@ export default function SearchForm({ onCheck, loading, error }) {
               appearance: 'none',
             }}
             className={[
-              'relative z-20 w-full font-app text-sm text-ink placeholder-ink-soft/70',
-              'pl-11 pr-4 py-2.5',
-              'focus:outline-none',
+              'relative z-20 w-full font-app text-base text-ink placeholder-ink-soft/70',
+              'px-4 py-3',
+              'focus:outline-none text-center',
               loading ? 'cursor-not-allowed' : '',
             ].join(' ')}
           />
@@ -182,9 +182,9 @@ export default function SearchForm({ onCheck, loading, error }) {
       )}
 
       {/* Claim inputs */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
-        <div>
-          <label htmlFor="claimed-credits" className="block font-app text-sm font-bold text-ink mb-1.5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mt-4 w-full">
+        <div className="flex flex-col items-center">
+          <label htmlFor="claimed-credits" className="block font-app text-sm font-bold text-ink mb-2 text-center">
             Credits claimed (optional)
           </label>
           <input
@@ -194,12 +194,12 @@ export default function SearchForm({ onCheck, loading, error }) {
             value={claimedCredits}
             onChange={(e) => setClaimedCredits(e.target.value)}
             disabled={loading}
-            className="w-full font-app text-sm text-ink placeholder-ink-soft/70 border border-ink/15 rounded-lg px-4 py-2.5 focus:outline-none focus:border-ink/40 transition-colors bg-transparent"
+            className="w-full font-app text-sm text-ink placeholder-ink-soft/70 border border-ink/15 rounded-lg px-4 py-2.5 focus:outline-none focus:border-ink/40 transition-colors bg-transparent text-center"
           />
         </div>
         
-        <div>
-          <label htmlFor="claimed-collaborators" className="block font-app text-sm font-bold text-ink mb-1.5">
+        <div className="flex flex-col items-center">
+          <label htmlFor="claimed-collaborators" className="block font-app text-sm font-bold text-ink mb-2 text-center">
             Named collaborators (comma-separated)
           </label>
           <textarea
@@ -209,7 +209,7 @@ export default function SearchForm({ onCheck, loading, error }) {
             value={claimedCollaborators}
             onChange={(e) => setClaimedCollaborators(e.target.value)}
             disabled={loading}
-            className="w-full font-app text-sm text-ink placeholder-ink-soft/70 border border-ink/15 rounded-lg px-4 py-2.5 focus:outline-none focus:border-ink/40 transition-colors bg-transparent resize-y min-h-[42px]"
+            className="w-full font-app text-sm text-ink placeholder-ink-soft/70 border border-ink/15 rounded-lg px-4 py-2.5 focus:outline-none focus:border-ink/40 transition-colors bg-transparent resize-y min-h-[42px] text-center"
           />
         </div>
       </div>

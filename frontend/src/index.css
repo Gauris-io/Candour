@@ -64,27 +64,4 @@ body {
   animation: pulse-dot 1.2s ease-in-out infinite;
 }
 
-/* ── Input: checker wrapper + focus overlay ─────────────────────────── */
-.input-wrapper {
-  background-image: url('/checker.jpg');
-  background-size: cover;
-  background-position: center;
-  position: relative;
-  overflow: hidden;
-}
 
-/* semi-transparent beige overlay that fades in when input is focused */
-.input-wrapper::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: transparent;
-  transition: background 0.3s ease;
-  pointer-events: none;
-  z-index: 1;
-  border-radius: inherit;
-}
-
-.input-wrapper:focus-within::before {
-  background: rgba(245, 241, 220, 0.70);
-}
