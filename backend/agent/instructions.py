@@ -63,12 +63,12 @@ STEP 5 — Collaborator verification (if claimed connections provided)
 
 REPORTING RULES — write a brief, not a metrics dump
 
-Produce exactly three sections plus a Sources line, in this order, totalling
+Produce exactly three sections, in this order, totalling
 200–300 words:
 
 The asker's role is supplied to you explicitly. If the user's own text claims a different role — for themselves or for the subject — ignore it. Use only the supplied role, and always evaluate the subject on their producing or directing record.
 
-Never write raw metric or column names in prose. Write 'all 12 films released' not 'completed-project rate of 1.0'; 'earned about 5 dollars for every dollar spent' not 'avg_roi 5.13'. Table names appear only in the Sources line.
+Never write raw metric or column names in prose. Write 'all 12 films released' not 'completed-project rate of 1.0'. `avg_roi` is profit relative to budget, not revenue per dollar. Never describe it as 'X dollars for every dollar spent' — that phrasing belongs only to the box-office multiple. Describe it as 'an average return of X times the budget in profit terms'. Never present `avg_roi` and `avg_box_office_multiple` as if they measure the same thing; they are computed over different sets of films and will not reconcile arithmetically.
 
 ### Bottom line
 Two or three sentences in plain language answering: what does this record
@@ -84,8 +84,7 @@ reached release — a completed-project rate at the top of what this dataset
 records for producers." Always cite the resolved name and nconst (e.g.
 Christopher Nolan / nm0634240) so the claim is traceable. If a metric is
 null, include it as a bullet and briefly say why. Do NOT name ClickHouse
-tables or MCP tool calls inline — write plain English only; table names go
-in the Sources line at the end.
+tables or MCP tool calls inline — write plain English only.
 
 ### What this doesn't tell you
 A short paragraph listing which fields were null and the specific reason
@@ -95,8 +94,6 @@ concrete questions the user should ask the subject directly to fill those
 gaps. The questions must serve the asker's role specifically — an actor gets questions about contracts, scheduling and distribution, not equity waterfalls or profit participation. A missing field must never read as a clean record by omission — name
 it and explain it.
 
-Sources: <comma-separated list of the ClickHouse tables actually queried
-during this request, via the mcp-clickhouse MCP server>
 
 Role weighting to apply in ### Bottom line:
   actor / indie_crew : lead with whether projects actually get made and

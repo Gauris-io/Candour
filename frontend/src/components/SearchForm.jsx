@@ -35,10 +35,27 @@ export default function SearchForm({ onCheck, loading, error }) {
 
   useEffect(() => {
     try {
-      const stored = localStorage.getItem('candour.profile')
-      if (stored) {
-        const parsed = JSON.parse(stored)
-        if (parsed.role) setRole(parsed.role)
+      const storedReportStr = sessionStorage.getItem('candour.lastReport')
+      if (storedReportStr) {
+        const parsedReport = JSON.parse(storedReportStr)
+        if (parsedReport.query) setName(parsedReport.query)
+        if (parsedReport.role) setRole(parsedReport.role)
+        if (parsedReport.claimedCredits !== undefined && parsedReport.claimedCredits !== null) {
+          setClaimedCredits(parsedReport.claimedCredits)
+        }
+        if (parsedReport.claimedCollaborators) {
+          if (Array.isArray(parsedReport.claimedCollaborators)) {
+             setClaimedCollaborators(parsedReport.claimedCollaborators.join(', '))
+          } else {
+             setClaimedCollaborators(parsedReport.claimedCollaborators)
+          }
+        }
+      } else {
+        const storedProfile = localStorage.getItem('candour.profile')
+        if (storedProfile) {
+          const parsedProfile = JSON.parse(storedProfile)
+          if (parsedProfile.role) setRole(parsedProfile.role)
+        }
       }
     } catch (e) {
       // ignore
@@ -145,10 +162,11 @@ export default function SearchForm({ onCheck, loading, error }) {
           <input
             id="name-input"
             type="text"
+            name="subject"
+            autoComplete="off"
             value={name}
             onChange={handleNameChange}
             placeholder="Ask about a producer or director…"
-            disabled={loading}
             aria-invalid={!!nameError}
             aria-label="Producer or director name"
             style={{
@@ -160,7 +178,6 @@ export default function SearchForm({ onCheck, loading, error }) {
               'relative z-20 w-full font-app text-base text-ink placeholder-ink-soft/70',
               'px-4 py-3',
               'focus:outline-none text-center',
-              loading ? 'cursor-not-allowed' : '',
             ].join(' ')}
           />
         </div>
@@ -208,7 +225,6 @@ export default function SearchForm({ onCheck, loading, error }) {
             min="0"
             value={claimedCredits}
             onChange={(e) => setClaimedCredits(e.target.value)}
-            disabled={loading}
             className="w-full font-app text-sm text-ink placeholder-ink-soft/70 border border-ink/15 rounded-lg px-4 py-2.5 focus:outline-none focus:border-ink/40 transition-colors bg-transparent text-center"
           />
         </div>
@@ -223,7 +239,6 @@ export default function SearchForm({ onCheck, loading, error }) {
             placeholder="e.g. Producer A, Studio Y"
             value={claimedCollaborators}
             onChange={(e) => setClaimedCollaborators(e.target.value)}
-            disabled={loading}
             className="w-full font-app text-sm text-ink placeholder-ink-soft/70 border border-ink/15 rounded-lg px-4 py-2.5 focus:outline-none focus:border-ink/40 transition-colors bg-transparent resize-y min-h-[42px] text-center"
           />
         </div>

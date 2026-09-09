@@ -118,12 +118,20 @@ function CreditsPanel({ result }) {
           footnote={
             credits.found === 0
               ? 'No credits found — recorded as insufficient history, not a contradiction.'
-              : "Projects where they're credited as producer or director"
+              : "Projects where they're credited as a producer."
           }
         />
+        {credits.released !== null && (
+          <LedgerRow
+            label="Projects released"
+            value={`${credits.released} of ${credits.found}`}
+            flagged={false}
+            footnote={`${Math.round(credits.completionRate * 100)}% of their credited projects reached release.`}
+          />
+        )}
         <LedgerRow
           label="Credits they claimed"
-          value={nullLabel(credits.claimed)}
+          value={(!credits.claimed) ? 'not provided' : String(credits.claimed)}
           flagged={false}
           footnote={
             credits.claimed > 0
@@ -144,44 +152,46 @@ function CollaboratorsPanel({ result }) {
 
   return (
     <div className="space-y-4">
-      {/* Summary counts */}
-      <div className="space-y-0">
-        <LedgerRow label="People they named"  value={String(total)}                                  flagged={false} />
-        <LedgerRow label="Confirmed working relationships"       value={String(collaborators.verified.length)}          flagged={false} />
-        <LedgerRow label="Couldn't confirm"     value={String(collaborators.unverified.length)}        flagged={collaborators.unverified.length > 0} footnote={collaborators.unverified.length > 0 ? "Absence of a record isn't proof a claim is false" : undefined} />
-      </div>
-
-      {/* Verified list */}
-      {collaborators.verified.length > 0 && (
-        <div>
-          <p className="font-mono text-xs font-semibold text-verified uppercase tracking-widest mb-1">
-            Verified
-          </p>
+      {hasAny ? (
+        <>
+          {/* Summary counts */}
           <div className="space-y-0">
-            {collaborators.verified.map((name, i) => (
-              <LedgerRow key={i} label={name} value="confirmed" flagged={false} />
-            ))}
+            <LedgerRow label="People they named"  value={String(total)}                                  flagged={false} />
+            <LedgerRow label="Confirmed working relationships"       value={String(collaborators.verified.length)}          flagged={false} />
+            <LedgerRow label="Couldn't confirm"     value={String(collaborators.unverified.length)}        flagged={collaborators.unverified.length > 0} footnote={collaborators.unverified.length > 0 ? "Absence of a record isn't proof a claim is false" : undefined} />
           </div>
-        </div>
-      )}
 
-      {/* Unverified list */}
-      {collaborators.unverified.length > 0 && (
-        <div>
-          <p className="font-mono text-xs font-semibold text-pink uppercase tracking-widest mb-1">
-            Unverified claims
-          </p>
-          <div className="space-y-0">
-            {collaborators.unverified.map((name, i) => (
-              <LedgerRow key={i} label={name} value="not confirmed" flagged={true} />
-            ))}
-          </div>
-        </div>
-      )}
+          {/* Verified list */}
+          {collaborators.verified.length > 0 && (
+            <div>
+              <p className="font-mono text-xs font-semibold text-verified uppercase tracking-widest mb-1">
+                Verified
+              </p>
+              <div className="space-y-0">
+                {collaborators.verified.map((name, i) => (
+                  <LedgerRow key={i} label={name} value="confirmed" flagged={false} />
+                ))}
+              </div>
+            </div>
+          )}
 
-      {!hasAny && (
+          {/* Unverified list */}
+          {collaborators.unverified.length > 0 && (
+            <div>
+              <p className="font-mono text-xs font-semibold text-pink uppercase tracking-widest mb-1">
+                Unverified claims
+              </p>
+              <div className="space-y-0">
+                {collaborators.unverified.map((name, i) => (
+                  <LedgerRow key={i} label={name} value="not confirmed" flagged={true} />
+                ))}
+              </div>
+            </div>
+          )}
+        </>
+      ) : (
         <p className="font-mono text-sm italic text-ink-soft">
-          No collaborator data available for this entity.
+          You didn't name any collaborators to verify. Add names in the search form to check claimed working relationships.
         </p>
       )}
 
@@ -206,7 +216,7 @@ function FinancialsPanel({ result }) {
           footnote={
             financials.avgBoxOfficeMultiple === null
               ? 'Data unavailable for this person’s projects — outside dataset scope or no TMDb/Wikidata match.'
-              : `Earned about $${financials.avgBoxOfficeMultiple} for every $1 spent across their tracked films`
+              : `Revenue was about ${financials.avgBoxOfficeMultiple}× the budget, across only the films with budget and revenue on file.`
           }
         />
         <LedgerRow
@@ -215,7 +225,7 @@ function FinancialsPanel({ result }) {
           flagged={financials.avgRoi === null}
           footnote={
             financials.avgRoi !== null
-              ? 'Profit relative to budget across their tracked films'
+              ? `Profit averaged about ${financials.avgRoi}× the budget. Computed over a wider set of films than the figure above, so the two won't match exactly.`
               : undefined
           }
         />
@@ -236,7 +246,7 @@ function FinancialsPanel({ result }) {
           footnote={
             financials.score === null
               ? 'Score requires cohort/genre data — unavailable outside a narrow high-vote-count slice of titles.'
-              : `${financials.score} out of 1 — combines financial returns (60%) and delivery record (40%)`
+              : `${financials.score} out of 1 — combines how their returns rank against comparable producers (60%) with their completion rate (40%).`
           }
         />
       </div>

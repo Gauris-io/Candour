@@ -78,13 +78,18 @@ function AgentBrief({ agentResponse, agentLoading, agentError }) {
           )}
 
           {agentResponse && (
-            <div className="max-w-none font-app text-ink leading-relaxed
-                            [&_h3]:font-heading [&_h3]:text-base [&_h3]:text-ink [&_h3]:mt-5 [&_h3]:mb-1
-                            [&_strong]:font-bold [&_strong]:text-ink
-                            [&_p]:mb-3 [&_ul]:mb-3 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:mb-1
-                            [&_code]:font-mono [&_code]:text-xs [&_code]:bg-ink/8 [&_code]:px-1 [&_code]:rounded">
-              <ReactMarkdown>{agentResponse}</ReactMarkdown>
-            </div>
+            <>
+              <div className="max-w-none font-app text-ink leading-relaxed
+                              [&_h3]:font-heading [&_h3]:text-base [&_h3]:text-ink [&_h3]:mt-5 [&_h3]:mb-1
+                              [&_strong]:font-bold [&_strong]:text-ink
+                              [&_p]:mb-3 [&_ul]:mb-3 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:mb-1
+                              [&_code]:font-mono [&_code]:text-xs [&_code]:bg-ink/8 [&_code]:px-1 [&_code]:rounded">
+                <ReactMarkdown>{agentResponse}</ReactMarkdown>
+              </div>
+              <div className="mt-4 font-mono text-xs text-ink-soft">
+                Sources: <a href="https://www.imdb.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-ink">IMDb</a> · <a href="https://www.themoviedb.org" target="_blank" rel="noopener noreferrer" className="underline hover:text-ink">TMDb</a> · <a href="https://www.wikidata.org" target="_blank" rel="noopener noreferrer" className="underline hover:text-ink">Wikidata</a>
+              </div>
+            </>
           )}
         </div>
       </div>

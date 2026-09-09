@@ -51,6 +51,8 @@ export function validateResponse(raw) {
     credits: {
       found:   raw.credits?.found   ?? null,
       claimed: raw.credits?.claimed ?? null,
+      released: raw.credits?.released ?? null,
+      completionRate: raw.credits?.completionRate ?? null,
     },
 
     collaborators: {

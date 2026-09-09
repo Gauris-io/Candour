@@ -40,10 +40,12 @@ def get_track_record(nconst: str | None, role: str) -> dict:
         track_rows = run_query(sql_track, parameters={"nconst": nconst, "category": category})
 
         credits_found = 0
+        released_projects = 0
         completion_rate = None
         if track_rows:
             row = track_rows[0]
             credits_found = row["credits_found"]
+            released_projects = row["released_projects"]
             completion_rate = row["completion_rate"]  # already computed in the view
 
         sql_cohort = """
@@ -57,6 +59,7 @@ def get_track_record(nconst: str | None, role: str) -> dict:
 
         return {
             "credits_found": credits_found,
+            "released_projects": released_projects,
             "completion_rate": completion_rate,
             "cohort_percentile": cohort_percentile,
             "data_sources": [f"metrics.person_track_record (category={category})"],

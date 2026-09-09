@@ -35,11 +35,23 @@ export const TABS = ['Credits', 'Collaborators', 'Financials']
  * }}
  */
 export function useCandourCheck() {
-  const [result, setResult]           = useState(null)
+  const [result, setResult] = useState(() => {
+    try {
+      const stored = sessionStorage.getItem('candour.lastReport')
+      if (stored) return JSON.parse(stored).result || null
+    } catch (e) {}
+    return null
+  })
   const [loading, setLoading]         = useState(false)
   const [error, setError]             = useState(null)
 
-  const [agentResponse, setAgentResponse] = useState(null)
+  const [agentResponse, setAgentResponse] = useState(() => {
+    try {
+      const stored = sessionStorage.getItem('candour.lastReport')
+      if (stored) return JSON.parse(stored).agentResponse || null
+    } catch (e) {}
+    return null
+  })
   const [agentLoading, setAgentLoading]   = useState(false)
   const [agentError, setAgentError]       = useState(null)
 
@@ -62,7 +74,21 @@ export function useCandourCheck() {
       try {
         await new Promise(r => setTimeout(r, 800))
         const raw = getMockResult(name.trim(), role, claimedCredits, claimedCollaborators)
-        setResult(validateResponse(raw))
+        const validatedResult = validateResponse(raw)
+        setResult(validatedResult)
+        try {
+          const existingStr = sessionStorage.getItem('candour.lastReport')
+          const existing = existingStr ? JSON.parse(existingStr) : {}
+          const toSave = { 
+            ...existing,
+            query: name.trim(), 
+            role, 
+            claimedCredits, 
+            claimedCollaborators, 
+            result: validatedResult 
+          }
+          sessionStorage.setItem('candour.lastReport', JSON.stringify(toSave))
+        } catch(e) {}
       } catch (err) {
         setError(err.message ?? 'Unknown error')
       } finally {
@@ -74,7 +100,23 @@ export function useCandourCheck() {
 
     // Live mode: fire both in parallel, update state independently as soon as each resolves
     checkCredibility(name.trim(), role, claimedCredits, claimedCollaborators)
-      .then(raw => setResult(validateResponse(raw)))
+      .then(raw => {
+        const validatedResult = validateResponse(raw)
+        setResult(validatedResult)
+        try {
+          const existingStr = sessionStorage.getItem('candour.lastReport')
+          const existing = existingStr ? JSON.parse(existingStr) : {}
+          const toSave = { 
+            ...existing,
+            query: name.trim(), 
+            role, 
+            claimedCredits, 
+            claimedCollaborators, 
+            result: validatedResult 
+          }
+          sessionStorage.setItem('candour.lastReport', JSON.stringify(toSave))
+        } catch(e) {}
+      })
       .catch(err => setError(err.message ?? 'Unknown error from /check'))
       .finally(() => setLoading(false))
 
@@ -106,7 +148,15 @@ export function useCandourCheck() {
     }
 
     askAgent(agentQuestion, role)
-      .then(text => setAgentResponse(text))
+      .then(text => {
+        setAgentResponse(text)
+        try {
+          const existingStr = sessionStorage.getItem('candour.lastReport')
+          const existing = existingStr ? JSON.parse(existingStr) : {}
+          existing.agentResponse = text
+          sessionStorage.setItem('candour.lastReport', JSON.stringify(existing))
+        } catch (e) {}
+      })
       .catch(err => setAgentError(err.message ?? 'Unknown error from /query'))
       .finally(() => setAgentLoading(false))
 

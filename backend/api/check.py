@@ -83,6 +83,7 @@ async def check_credibility(request: CheckRequest):
     # 3. Extract values.
     # ------------------------------------------------------------------
     credits_found: Optional[int] = track.get("credits_found", None)
+    released_projects: Optional[int] = track.get("released_projects", None)
     completion_rate: Optional[float] = track.get("completion_rate", None)
     cohort_percentile: Optional[float] = track.get("cohort_percentile", None)
     data_sources: list[str] = track.get("data_sources", [])
@@ -150,6 +151,8 @@ async def check_credibility(request: CheckRequest):
         "credits": {
             "found": credits_found,
             "claimed": credits_claimed,
+            "released": released_projects,
+            "completionRate": completion_rate,
         },
         "collaborators": {
             "verified": verified_collabs,
